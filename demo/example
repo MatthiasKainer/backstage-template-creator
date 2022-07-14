@@ -1,0 +1,3 @@
+package_name_uppercase=>${{values.package | capitalize}}
+package_name=>${{values.package}}
+project_name=>${{values.project}}
