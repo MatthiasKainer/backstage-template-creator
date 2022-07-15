@@ -41,7 +41,7 @@ fn read_lines() -> Result<Vec<Replacement>, std::io::Error> {
 
 fn perform(input: &PathBuf, output: &PathBuf, replacements: &Vec<Replacement>) -> io::Result<()> {
     info!("Removing target destination {:?}", output);
-    file::delete(output)?;
+    if std::path::Path::new(output).exists() {file::delete(output)?;}
     info!("Copy from {:?} to {:?}", input, output);
     file::copy::dir(input, output)?;
     file::rename::dir_and_file_rename(output, replacements)?;
