@@ -37,3 +37,16 @@ project_name=>${{values.project}}
 Maps the existing fields into the specified templates variables. The first element is replaced with the second if found in the name of the folder/file or in the content of an UTF-8 encoded file.
 
 An example can be found in [demo/example](demo/example)
+
+### Ignoring files and folders
+
+You can ignore files and folders by putting a `.btcignore` file into the directory where you want to execute the command. This file can contain a list of globbing-matched entries that you want to exclude. For instance
+
+```
+**/node_modules/**
+**/target/**
+**/*.db
+```
+
+This will ignore all subfolders `node_modules` and `target`, and all files with the ending `.db`
+

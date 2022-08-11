@@ -1,3 +1,5 @@
+#![feature(iter_advance_by)]
+
 #[macro_use]
 extern crate clap;
 extern crate atty;
@@ -12,6 +14,7 @@ use std::path;
 use std::path::*;
 use std::io;
 use std::io::prelude::*;
+use std::fs;
 use std::vec::*;
 
 use log::*;
@@ -43,7 +46,12 @@ fn perform(input: &PathBuf, output: &PathBuf, replacements: &Vec<Replacement>) -
     info!("Removing target destination {:?}", output);
     if std::path::Path::new(output).exists() {file::delete(output)?;}
     info!("Copy from {:?} to {:?}", input, output);
-    file::copy::dir(input, output)?;
+    let data: String = match fs::read_to_string(".btcignore") {
+        Ok(file) => file,
+        Err(_) => String::from(""),
+    };
+    info!("Data from btcignore file: {:?}", data);
+    file::copy::dir(input, output, data)?;
     file::rename::dir_and_file_rename(output, replacements)?;
     info!("Replacing content in files");
     file::replace::content(output, replacements)?;
@@ -55,11 +63,11 @@ fn main() -> io::Result<()> {
     let matches = clap_app!(templatify =>
         (version: "1.0")
         (author: "Matthias Kainer")
-        (about: "Creates backstage.io templates from projects")
+        (about: "Creates backstage.io templates from projects. For logging, set the RUST_LOG variable to error, warn, info or debug")
         (@arg INPUT: -i --input +takes_value "Sets the base directory of the project to transform. Defaults to current directory.")
         (@arg OUTPUT: -o --output +takes_value +required "Sets the base directory for the created project. Everything at this location will be deleted first.")
-        (@arg debug: -d ... "Sets the level of debugging information")
     ).get_matches();
+
     if atty::is(atty::Stream::Stdin) {
         println!("Add a line for each replacement in the format ");
         println!("NAME=>${{values.VARIABLE}}");
